@@ -1,13 +1,19 @@
+require('newrelic');
 const express = require('express')
 const app = express()
 const path = require('path')
-const port = 3000
+const port = 80;
 const cors = require('cors')
+const proxy = require('http-proxy-middleware');
 
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use('/', express.static(path.join(__dirname, '../public')));
+
+const transactionsHost = 'http://3.19.169.46';
+const transactionsRoute = '/api/transactions/psql/customers/';
+app.use(transactionsRoute, proxy({ target: transactionsHost }));
 
 app.get('/navbar/img/:photo', (req, res) => {
   const url = `http://54.219.176.99/navbar/img/${path.basename(req.url)}`
